@@ -9,9 +9,9 @@
     2. 때때로 귀차니즘이 환기해야한다는 생각보다 앞서기 때문이다.
     3. 집중력 저하, 건조함
 
-<br>
+
 ### 참고자료
-- https://www.healthline.com/health/stuffy-nose-relief#humidifier
+* https://www.healthline.com/health/stuffy-nose-relief#humidifier
 
 
 ### FYI
