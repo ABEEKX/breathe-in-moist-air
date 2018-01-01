@@ -9,6 +9,14 @@
     2. 때때로 귀차니즘이 환기해야한다는 생각보다 앞서기 때문이다.
     3. 집중력 저하, 건조함
 
+### 필요한 센서
+- 온습도 센서: DHT22?
+- CO2센서: MH-Z14?
+
+### 필요한 액튜에이터
+- 칼라 LED
+- 피에조 부저?
+- 릴레이?
 
 ### 참고자료
 * https://www.healthline.com/health/stuffy-nose-relief#humidifier
