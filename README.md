@@ -22,7 +22,6 @@
 - http://www.ohmynews.com/NWS_Web/View/at_pg.aspx/?CNTN_CD=A0002190373
 - [임완철. (2015). 교실 내 공기 중 이산화탄소 농도가 학습에 미치는 효과에 대한 문헌 연구. 환경교육, 28(2), 134-145.](https://goo.gl/8ogCHN)
 - https://ir.ymlib.yonsei.ac.kr/handle/22282913/133804
-- http://www.science.go.kr/upload/board/EXHIBIT/58/j05820121804.pdf
 - http://health.chosun.com/healthyLife/column_view.jsp?idx=7375
     
 <br/>
