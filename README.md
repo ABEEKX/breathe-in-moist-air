@@ -16,9 +16,17 @@
 - 동일 난방비용일 때 중앙 난방시스템은 개별 난방시스템보다 사용자의 만족도가 낮다.
 
 3. 쾌적한 공기가 학습에 미치는 영향
-- 
-- 
+- 이산화탄소 농도는 집중력에 영향을 미친다.  
+- 히터 등을 활용할 때 급격한 온도 변화는 비염 등 호흡기질환이 있는 학생에게 특히 악영향을 미칠 수 있다.
 
+3-1. 참고 자료
+
+    - http://www.ohmynews.com/NWS_Web/View/at_pg.aspx/?CNTN_CD=A0002190373
+    - [임완철. (2015). 교실 내 공기 중 이산화탄소 농도가 학습에 미치는 효과에 대한 문헌 연구. 환경교육, 28(2), 134-145.] https://goo.gl/8ogCHN
+    - https://ir.ymlib.yonsei.ac.kr/handle/22282913/133804
+    - http://www.science.go.kr/upload/board/EXHIBIT/58/j05820121804.pdf
+    - http://health.chosun.com/healthyLife/column_view.jsp?idx=7375
+    
 <br/>
 
 ## 2. 주요 내용
