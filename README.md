@@ -80,7 +80,4 @@
 
 <br/>
 
-### 참고자료
-* https://www.healthline.com/health/stuffy-nose-relief#humidifier
-* search google for "MD format" or "Edit MD" etc...
-https://pandao.github.io/editor.md/en.html would help.
+
