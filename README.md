@@ -51,8 +51,8 @@
 
 - 강의실의 온도,CO2,미세먼지 센서 데이터를 AWS Ubuntu 서버의 mySQL 데이터베이스에 축적한다.
 - http://www.airkorea.or.kr/index 에서, 강의실 바깥의 미세먼지 데이터를 제공받는다.
-- (머신러닝)
--   
+- 머신러닝 비지도학습의 한 기법인 k means clustering을 이용하여 k개의 그룹으로 나눈 후 공기 질의 국제 기준을 통해 레이블을 준다.
+- RNN(Recurrent Neural Network)를 이용하여 온도, CO2농도, 미세먼지 농도를 예측한다.
 
 #### 필요한 센서
 - 온습도 센서: DHT22
