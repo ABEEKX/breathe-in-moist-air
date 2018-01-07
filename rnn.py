@@ -20,7 +20,7 @@ def MinMaxScaler(data):
     return numerator / (denominator + 1e-7)
 
 seq_length = 7
-data_dim = 5
+data_dim = 1
 hidden_dim = 10
 output_dim = 1
 learning_rate = 0.01
@@ -28,21 +28,21 @@ iterations = 500
 
 con=pymysql.connect(host='52.78.192.119',port=3306,user='root',password='Cap2bowoo!',db='abeekx',charset='utf8')
 cursor=con.cursor()
-
-xy = list(cursor)
-xy = MinMaxScaler(xy)
-x = xy
-y = xy[:, [-1]]  # Close as label
+cursor.execute("SELECT temp FROM sensors")
 
 dataX = []
 dataY = []
-for i in range(0, len(y) - seq_length):
-    _x = x[i:i + seq_length]
-    _y = y[i + seq_length]  # Next close price
-    print(_x, "->", _y)
-    dataX.append(_x)
-    dataY.append(_y)
+list(cursor).pop(0)
+temp=cursor
 
+for row in cursor:
+    dataX.append(float(row[0]))
+
+for row in temp:
+    dataY.append(float(row[0]))
+
+cursor.close()
+con.close()
 # train/test split
 train_size = int(len(dataY) * 0.7)
 test_size = len(dataY) - train_size
@@ -52,7 +52,7 @@ trainY, testY = np.array(dataY[0:train_size]), np.array(
     dataY[train_size:len(dataY)])
 
 # input place holders
-X = tf.placeholder(tf.float32, [None, seq_length, data_dim])
+X = tf.placeholder(tf.float32, [None, 1])
 Y = tf.placeholder(tf.float32, [None, 1])
 
 # build a LSTM network
@@ -93,5 +93,5 @@ with tf.Session() as sess:
     plt.plot(testY)
     plt.plot(test_predict)
     plt.xlabel("Time Period")
-    plt.ylabel("Stock Price")
+    plt.ylabel("Temperature")
     plt.show()
