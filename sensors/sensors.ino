@@ -1,14 +1,14 @@
 //
-//    FILE: connected_sensor.ino
-//  AUTHOR: Kyuho Kim (ekyuho@gmail.com)
+//    FILE: sensors.ino
+//  AUTHOR: Bowoo Jang (codingbowoo@gmail.com)
 // CREATED: September 4, 2017
-// Last Modified: December 31st, 2017 by Bowoo Jang
+// original code from https://github.com/ekyuho/connected_sensor  
 // Released to the public domain
 //
 
 
 #include "MyWifi.h"
-MyWifi mywifi("ReleaseWifi Extreme", "10161016");
+MyWifi mywifi("(SSID)", "(PASSWORD)"); // replace (SSID) and (PASSWORD) with your own ssid & password
 
 #include "Bowoo.h"
 Bowoo bw;
