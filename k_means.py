@@ -2,10 +2,9 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import pymysql
-import csv
 
 n_features = 2
-n_clusters = 3
+n_clusters = 5
 n_samples_per_cluster = 100
 seed = 700
 
@@ -41,10 +40,10 @@ def update_centroids(samples, nearest_indices, n_clusters):
     new_centroids = tf.concat([tf.expand_dims(tf.reduce_mean(partition, 0), 0) for partition in partitions], 0)
     return new_centroids
 
-cursor.execute("SELECT pm10,pm25 FROM sensors")
+cursor.execute("SELECT pm10,ppm FROM sensors where ppm!='None' and pm10!='None'")
 samples=[]
 for row in cursor:
-    samples.append(tf.constant([float(row[0]),float(row[1])],dtype=tf.float32))
+    samples.append(tf.constant([float(row[0]),float(row[1])/100],dtype=tf.float32))  # ppm scaling
 
 # disconnect db
 cursor.close()
