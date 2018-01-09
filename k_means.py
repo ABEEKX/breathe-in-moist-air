@@ -1,11 +1,12 @@
+# import module
 import tensorflow as tf
 import numpy as np
 import pandas as pd
 import pymysql
 
 n_features = 2
-n_clusters = 5
-n_samples_per_cluster = 100
+n_clusters = 4
+n_samples_per_cluster = 1000
 seed = 700
 
 #db connect
@@ -42,8 +43,19 @@ def update_centroids(samples, nearest_indices, n_clusters):
 
 cursor.execute("SELECT pm10,ppm FROM sensors where ppm!='None' and pm10!='None'")
 samples=[]
+flag=False
 for row in cursor:
-    samples.append(tf.constant([float(row[0]),float(row[1])/100],dtype=tf.float32))  # ppm scaling
+    cur_ppm = float(row[1])
+    if (flag):
+        # noise data delete
+        if ((cur_ppm - pre_ppm) > 3000.0):
+            samples.append(tf.constant([float(row[0]), pre_ppm / 10], dtype=tf.float32))  # ppm scaling /10
+        else:
+            samples.append(tf.constant([float(row[0]), cur_ppm / 10], dtype=tf.float32))  # ppm scaling /10
+    else:
+        samples.append(tf.constant([float(row[0]), cur_ppm / 10], dtype=tf.float32))  # ppm scaling /10
+    pre_ppm = cur_ppm
+    flag = True
 
 # disconnect db
 cursor.close()
