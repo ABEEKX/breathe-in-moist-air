@@ -35,9 +35,6 @@ xy=[]
 for row in cursor:
     xy.append([float(row[0])])
 
-cursor.close()
-con.close()  # db disconnect
-
 xy=xy[::-1]  # reverse data
 xy1=xy  # pre Scalar data
 numerator = xy - np.min(xy, 0)  # MinMaxScalar
@@ -84,30 +81,48 @@ targets = tf.placeholder(tf.float32, [None, 1])
 predictions = tf.placeholder(tf.float32, [None, 1])
 rmse = tf.sqrt(tf.reduce_mean(tf.square(targets - predictions)))
 
-with tf.Session() as sess:
-    init = tf.global_variables_initializer()
-    sess.run(init)
-    # Training step
-    for i in range(iterations):
-        _, step_loss = sess.run([train, loss], feed_dict={X: trainX, Y: trainY})
-        print("[step: {}] loss: {}".format(i, step_loss))
+sess=tf.Session()
+init = tf.global_variables_initializer()
+sess.run(init)
+# Training step
+for i in range(iterations):
+    _, step_loss = sess.run([train, loss], feed_dict={X: trainX, Y: trainY})
+    print("[step: {}] loss: {}".format(i, step_loss))
 
-    # Test step
-    test_predict = sess.run(Y_pred, feed_dict={X: testX})
-    rmse_val = sess.run(rmse, feed_dict={
-                    targets: testY, predictions: test_predict})
-    print("RMSE: {}".format(rmse_val))
+# Test step
+test_predict = sess.run(Y_pred, feed_dict={X: testX})
+rmse_val = sess.run(rmse, feed_dict={targets: testY, predictions: test_predict})
+print("RMSE: {}".format(rmse_val))
 
-    # Plot predictions
-    testY = testY*( np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)  # Decode MinMaxScalar
-    plt.plot(testY)
-    # 4 times added prediction
-    distance=(test_predict[-1]-test_predict[-2])*0.2  # Momentum
-    for i in range(5):
-        test_predict=np.append(test_predict,[test_predict[-1]+(i+1)*distance],axis=0)
+# Plot predictions
+testY = testY*( np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)  # Decode MinMaxScalar
+#plt.plot(testY)
+# 4 times added prediction
+distance=(test_predict[-1]-test_predict[-2])*0.2  # Momentum
+for i in range(5):
+    test_predict=np.append(test_predict,[test_predict[-1]+(i+1)*distance],axis=0)
 
-    test_predict=test_predict*( np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)  # Decode MinMaxScalar
-    plt.plot(test_predict)
-    plt.xlabel("Time Period")
-    plt.ylabel("Temperature")
-    plt.show()
+test_predict=test_predict*( np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)  # Decode MinMaxScalar
+#plt.plot(test_predict)
+#plt.xlabel("Time Period")
+#plt.ylabel("Temperature")
+#plt.show()
+
+# delete last 4 data
+cursor.execute("DELETE FROM predict WHERE value1 is null")
+con.commit()
+
+#cursor.execute("DELETE FROM predict")
+#con.commit()
+
+# save db
+list_length=len(testY)
+#for i in range(list_length):
+#    cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[i], test_predict[i]))
+cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[list_length-1], test_predict[list_length-1]))
+for i in range(4):
+    cursor.execute("INSERT INTO predict (value2) VALUES (%f)" % (test_predict[list_length+i]))
+con.commit()
+
+cursor.close()
+con.close()  # db disconnect
