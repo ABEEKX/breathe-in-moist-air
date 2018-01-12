@@ -12,63 +12,57 @@ if "DISPLAY" not in os.environ:
     # remove Travis CI Error
     matplotlib.use('Agg')
 
-
-def MinMaxScaler(data):
-    #  Min Max Normalization
-    numerator = data - np.min(data, 0)
-    denominator = np.max(data, 0) - np.min(data, 0)
-    # noise term prevents the zero division
-    return numerator / (denominator + 1e-7)
-
 seq_length = 7
 data_dim = 1
 hidden_dim = 10
 output_dim = 1
 learning_rate = 0.01
-iterations = 500
+iterations = 1000
+#num_layers = 3
 
 # connect db
 con=pymysql.connect(host='52.78.192.119',port=3306,user='root',password='Cap2bowoo!',db='abeekx',charset='utf8')
 cursor=con.cursor()
-cursor.execute("SELECT temp FROM sensors")
+cursor.execute("SELECT temp,time FROM sensors")
 xy=[]
 for row in cursor:
     xy.append([float(row[0])])
 
-xy=xy[::-1]  # reverse data
+#xy=xy[::-1]  # reverse data
 xy1=xy  # pre Scalar data
 numerator = xy - np.min(xy, 0)  # MinMaxScalar
 denominator = np.max(xy, 0) - np.min(xy, 0)
 xy =  (xy - np.min(xy, 0))/ (denominator + 1e-7)
 x = xy
-y = xy[:,[-1]]  # Close as label
 
 dataX = []
 dataY = []
-for i in range(0, len(y) - seq_length):
+for i in range(0, len(x) - seq_length):
     _x = x[i:i + seq_length]
-    _y = y[i + seq_length]  # Next temperature
+    _y = x[i+seq_length]
     dataX.append(_x)
     dataY.append(_y)
 
 # train/test split
-train_size = int(len(dataY) * 0.7)
-test_size = len(dataY) - train_size
-trainX, testX = np.array(dataX[0:train_size]), np.array(
-    dataX[train_size:len(dataX)])
-trainY, testY = np.array(dataY[0:train_size]), np.array(
-    dataY[train_size:len(dataY)])
+train_size = int(0.8*len(dataX))
+trainX, testX = np.array(dataX[0:train_size]), np.array(dataX[train_size:len(dataX)])
+trainY, testY = np.array(dataY[0:train_size]), np.array(dataY[train_size:len(dataY)])
 
 # input place holders
 X = tf.placeholder(tf.float32, [None, seq_length, data_dim])
-Y = tf.placeholder(tf.float32, [None, 1])
+Y = tf.placeholder(tf.float32, [None,  data_dim])
 
 # build a LSTM network
-cell = tf.contrib.rnn.BasicLSTMCell(
-    num_units=hidden_dim, state_is_tuple=True, activation=tf.tanh)
+cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim, state_is_tuple=True, activation=tf.tanh)
+'''Multi Layer LSTM network
+cells = []
+for _ in range(num_layers):
+  cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim, state_is_tuple=True, activation=tf.tanh)
+  cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=0.8)
+  cells.append(cell)
+cell = tf.contrib.rnn.MultiRNNCell(cells,state_is_tuple=True)'''
 outputs, _states = tf.nn.dynamic_rnn(cell, X, dtype=tf.float32)
-Y_pred = tf.contrib.layers.fully_connected(
-    outputs[:,-1], output_dim, activation_fn=None)  # reverse output
+Y_pred = tf.contrib.layers.fully_connected(outputs[:,-1], output_dim, activation_fn=None)
 
 # cost/loss
 loss = tf.reduce_sum(tf.square(Y_pred - Y))  # sum of the squares
@@ -77,8 +71,8 @@ optimizer = tf.train.AdamOptimizer(learning_rate)
 train = optimizer.minimize(loss)
 
 # RMSE
-targets = tf.placeholder(tf.float32, [None, 1])
-predictions = tf.placeholder(tf.float32, [None, 1])
+targets = tf.placeholder(tf.float32, [None, data_dim])
+predictions = tf.placeholder(tf.float32, [None, data_dim])
 rmse = tf.sqrt(tf.reduce_mean(tf.square(targets - predictions)))
 
 sess=tf.Session()
@@ -89,40 +83,25 @@ for i in range(iterations):
     _, step_loss = sess.run([train, loss], feed_dict={X: trainX, Y: trainY})
     print("[step: {}] loss: {}".format(i, step_loss))
 
-# Test step
-test_predict = sess.run(Y_pred, feed_dict={X: testX})
-rmse_val = sess.run(rmse, feed_dict={targets: testY, predictions: test_predict})
-print("RMSE: {}".format(rmse_val))
+saver=tf.train.Saver()
+save_path=saver.save(sess,"./rnn_train.ckpt")
 
-# Plot predictions
-testY = testY*( np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)  # Decode MinMaxScalar
-#plt.plot(testY)
-# 4 times added prediction
-distance=(test_predict[-1]-test_predict[-2])*0.2  # Momentum
-for i in range(5):
-    test_predict=np.append(test_predict,[test_predict[-1]+(i+1)*distance],axis=0)
-
-test_predict=test_predict*( np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)  # Decode MinMaxScalar
-#plt.plot(test_predict)
-#plt.xlabel("Time Period")
-#plt.ylabel("Temperature")
-#plt.show()
-
+# cursor.execute("DELETE FROM predict WHERE id=(SELECT MAX(id) FROM (SELECT id FROM predict WHERE value1 is not null) A)")
 # delete last 4 data
-cursor.execute("DELETE FROM predict WHERE value1 is null")
-con.commit()
+#cursor.execute("DELETE FROM predict WHERE value1 is null")
+#on.commit()
 
 #cursor.execute("DELETE FROM predict")
 #con.commit()
 
 # save db
-list_length=len(testY)
+#list_length=len(testY)
 #for i in range(list_length):
 #    cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[i], test_predict[i]))
-cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[list_length-1], test_predict[list_length-1]))
-for i in range(4):
-    cursor.execute("INSERT INTO predict (value2) VALUES (%f)" % (test_predict[list_length+i]))
-con.commit()
+#cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[list_length-1], test_predict[list_length-1]))
+#for i in range(4):
+#    cursor.execute("INSERT INTO predict (value2) VALUES (%f)" % (test_predict[list_length+i]))
+#con.commit()
 
 cursor.close()
 con.close()  # db disconnect
