@@ -64,12 +64,16 @@ rmse = tf.sqrt(tf.reduce_mean(tf.square(targets - predictions)))
 
 sess=tf.Session()
 saver=tf.train.Saver()
+
 init = tf.global_variables_initializer()
 sess.run(init)
+
 save_path="./rnn_train.ckpt"
-saver.restore(sess,save_path)
+saver.restore(sess,save_path)  # restore train variable
+
 # Test step
 test_predict = sess.run(Y_pred, feed_dict={X: testX})
+
 # 5 times added prediction
 temp_list=testX[-1]
 temp_list=np.delete(temp_list, 0, axis=0)

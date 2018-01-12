@@ -1,16 +1,8 @@
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-import os
 import pymysql
 
-
 tf.set_random_seed(700)
-
-if "DISPLAY" not in os.environ:
-    # remove Travis CI Error
-    matplotlib.use('Agg')
 
 seq_length = 7
 data_dim = 1
@@ -24,11 +16,14 @@ iterations = 1000
 con=pymysql.connect(host='52.78.192.119',port=3306,user='root',password='Cap2bowoo!',db='abeekx',charset='utf8')
 cursor=con.cursor()
 cursor.execute("SELECT temp,time FROM sensors")
+
 xy=[]
 for row in cursor:
     xy.append([float(row[0])])
 
-#xy=xy[::-1]  # reverse data
+cursor.close()
+con.close()  # db disconnect
+
 xy1=xy  # pre Scalar data
 numerator = xy - np.min(xy, 0)  # MinMaxScalar
 denominator = np.max(xy, 0) - np.min(xy, 0)
@@ -84,24 +79,4 @@ for i in range(iterations):
     print("[step: {}] loss: {}".format(i, step_loss))
 
 saver=tf.train.Saver()
-save_path=saver.save(sess,"./rnn_train.ckpt")
-
-# cursor.execute("DELETE FROM predict WHERE id=(SELECT MAX(id) FROM (SELECT id FROM predict WHERE value1 is not null) A)")
-# delete last 4 data
-#cursor.execute("DELETE FROM predict WHERE value1 is null")
-#on.commit()
-
-#cursor.execute("DELETE FROM predict")
-#con.commit()
-
-# save db
-#list_length=len(testY)
-#for i in range(list_length):
-#    cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[i], test_predict[i]))
-#cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[list_length-1], test_predict[list_length-1]))
-#for i in range(4):
-#    cursor.execute("INSERT INTO predict (value2) VALUES (%f)" % (test_predict[list_length+i]))
-#con.commit()
-
-cursor.close()
-con.close()  # db disconnect
+save_path=saver.save(sess,"./rnn_train.ckpt")  # save train variable
