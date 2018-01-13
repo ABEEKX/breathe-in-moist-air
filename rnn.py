@@ -49,13 +49,15 @@ Y = tf.placeholder(tf.float32, [None,  data_dim])
 
 # build a LSTM network
 cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim, state_is_tuple=True, activation=tf.tanh)
-'''Multi Layer LSTM network
+'''
+# Multi Layer LSTM network
 cells = []
 for _ in range(num_layers):
   cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim, state_is_tuple=True, activation=tf.tanh)
   cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob=0.8)
   cells.append(cell)
-cell = tf.contrib.rnn.MultiRNNCell(cells,state_is_tuple=True)'''
+cell = tf.contrib.rnn.MultiRNNCell(cells,state_is_tuple=True)
+'''
 outputs, _states = tf.nn.dynamic_rnn(cell, X, dtype=tf.float32)
 Y_pred = tf.contrib.layers.fully_connected(outputs[:,-1], output_dim, activation_fn=None)
 

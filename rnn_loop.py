@@ -1,7 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
 import pymysql
 import datetime
 
@@ -20,8 +18,8 @@ cursor=con.cursor()
 cursor.execute("SELECT MAX(id) FROM sensors")  # check new data in
 pre_max_id=int(cursor.fetchone()[0])
 
-max_id=pre_max_id
-while(max_id==pre_max_id):
+max_id = pre_max_id
+while( max_id == pre_max_id ):
     con.commit()
     cursor.execute("SELECT MAX(id) FROM sensors")
     max_id=int(cursor.fetchone()[0])
@@ -34,7 +32,7 @@ for row in cursor:
     xy.append([float(row[0])])
     time.append([str(row[1])])  # get timestamp
 last_time=time[-1]
-#xy=xy[::-1]  # reverse data
+
 xy1=xy  # pre Scalar data
 numerator = xy - np.min(xy, 0)  # MinMaxScalar
 denominator = np.max(xy, 0) - np.min(xy, 0)
@@ -50,7 +48,7 @@ for i in range(0, len(x) - seq_length):
     dataY.append(_y)
 
 # train/test split
-train_size = int(0.9*len(dataX))
+train_size = int(0.95*len(dataX))
 trainX, testX = np.array(dataX[0:train_size]), np.array(dataX[train_size:len(dataX)])
 trainY, testY = np.array(dataY[0:train_size]), np.array(dataY[train_size:len(dataY)])
 timeY = np.array(time[train_size:len(dataY)])

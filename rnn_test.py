@@ -9,7 +9,7 @@ seq_length = 7
 data_dim = 1
 hidden_dim = 10
 output_dim = 1
-#num_layer = 3
+#num_layers = 3
 
 # connect db
 con=pymysql.connect(host='52.78.192.119',port=3306,user='root',password='Cap2bowoo!',db='abeekx',charset='utf8')
@@ -21,7 +21,7 @@ for row in cursor:
     xy.append([float(row[0])])
     time.append([str(row[1])])  # get timestamp
 
-#xy=xy[::-1]  # reverse data
+
 xy1=xy  # pre Scalar data
 numerator = xy - np.min(xy, 0)  # MinMaxScalar
 denominator = np.max(xy, 0) - np.min(xy, 0)
@@ -37,7 +37,7 @@ for i in range(0, len(x) - seq_length):
     dataY.append(_y)
 
 # train/test split
-train_size = int(0.9*len(dataX))
+train_size = int(0.95*len(dataX))
 trainX, testX = np.array(dataX[0:train_size]), np.array(dataX[train_size:len(dataX)])
 trainY, testY = np.array(dataY[0:train_size]), np.array(dataY[train_size:len(dataY)])
 timeY = np.array(time[train_size:len(dataY)])
@@ -47,7 +47,8 @@ Y = tf.placeholder(tf.float32, [None,  data_dim])
 
 # build a LSTM network
 cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim, state_is_tuple=True, activation=tf.tanh)
-'''Multi Layer LSTM network
+'''
+# Multi Layer LSTM network
 cells = []
 for _ in range(num_layers):
   cell = tf.contrib.rnn.BasicLSTMCell(num_units=hidden_dim, state_is_tuple=True, activation=tf.tanh)
@@ -105,15 +106,12 @@ testY = testY*( np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)  # Decode
 test_predict = test_predict*(np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1, 0)
 
 # Plot predictions
-#plt.plot(testY)
-#plt.plot(test_predict)
-#plt.xlabel("Time Period")
-#plt.ylabel("Temperature")
-#plt.show()
+plt.plot(testY)
+plt.plot(test_predict)
+plt.xlabel("Time Period")
+plt.ylabel("Temperature")
+plt.show()
 
-# delete last 5 data
-cursor.execute("DELETE FROM predict WHERE value1 is null")
-con.commit()
 
 f='%Y-%m-%d %H:%M:%S'  # time format
 # save db
@@ -121,7 +119,7 @@ list_length=len(testY)
 for i in range(list_length):
     cursor.execute("INSERT INTO predict (value1,value2,time) VALUES (%f,%f,'%s')"
                    % (testY[i], test_predict[i], datetime.datetime.strptime(str(timeY[i, 0]), f)))
-#cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)" % (testY[list_length-1], test_predict[list_length-1]))
+
 for i in range(5):
     cursor.execute("INSERT INTO predict (value2,time) VALUES (%f,'%s')"
                    % (test_predict[list_length+i],
