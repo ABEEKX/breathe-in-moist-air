@@ -15,17 +15,25 @@ output_dim = 1
 # connect db
 con=pymysql.connect(host='52.78.192.119',port=3306,user='root',password='Cap2bowoo!',db='abeekx',charset='utf8')
 cursor=con.cursor()
-cursor.execute("SELECT MAX(id) FROM sensors")  # check new data in
-for row in cursor:
-    pre_max_id = int(row[0])
 
+# if new data input then start main
+cursor.execute("SELECT MAX(id) FROM sensors")  # check new data in
+pre_max_id=int(cursor.fetchone()[0])
+
+max_id=pre_max_id
+while(max_id==pre_max_id):
+    con.commit()
+    cursor.execute("SELECT MAX(id) FROM sensors")
+    max_id=int(cursor.fetchone()[0])
+
+# main
 cursor.execute("SELECT temp,time FROM sensors")
 xy=[]
 time=[]
 for row in cursor:
     xy.append([float(row[0])])
     time.append([str(row[1])])  # get timestamp
-
+last_time=time[-1]
 #xy=xy[::-1]  # reverse data
 xy1=xy  # pre Scalar data
 numerator = xy - np.min(xy, 0)  # MinMaxScalar
@@ -113,23 +121,19 @@ test_predict = test_predict*(np.max(xy1, 0) - np.min(xy1, 0) + 1e-7)+np.min(xy1,
 f='%Y-%m-%d %H:%M:%S'  # time format
 list_length=len(testY)
 
-cursor.execute("SELECT MAX(id) FROM sensors")  # check new data in
-for row in cursor:
-    max_id=float(row[0])
 
-if(max_id != pre_max_id):
-    # delete last 5 data
-    cursor.execute("DELETE FROM predict WHERE value1 is null")
-    con.commit()
+# delete last 5 data
+cursor.execute("DELETE FROM predict WHERE value1 is null")
+con.commit()
 
-    # save db
-    cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)"
-                   % (testY[list_length-1], test_predict[list_length-1]))
-    for i in range(5):
-        cursor.execute("INSERT INTO predict (value2,time) VALUES (%f,'%s')"
-                       % (test_predict[list_length+i],
-                          datetime.datetime.strptime(str(timeY[-1, 0]), f) + datetime.timedelta(minutes=i+1)))
-    con.commit()
+# save db
+cursor.execute("INSERT INTO predict (value1,value2) VALUES (%f,%f)"
+               % (testY[list_length-1], test_predict[list_length-1]))
+for i in range(5):
+    cursor.execute("INSERT INTO predict (value2,time) VALUES (%f,'%s')"
+                   % (test_predict[list_length+i],
+                      datetime.datetime.strptime(str(last_time[0]), f) + datetime.timedelta(minutes=i+1)))
+con.commit()
 
 cursor.close()
 con.close()  # db disconnect
