@@ -9,7 +9,7 @@ data_dim = 1
 hidden_dim = 10
 output_dim = 1
 learning_rate = 0.01
-iterations = 1000
+iterations = 2000
 #num_layers = 3
 
 # connect db
