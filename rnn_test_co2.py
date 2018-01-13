@@ -17,9 +17,6 @@ cursor=con.cursor()
 cursor.execute("SELECT ppm,time FROM sensors")
 xy=[]
 time=[]
-#for row in cursor:
-#    xy.append([float(row[0])])
-#    time.append([str(row[1])])  # get timestamp
 
 # noisy data handling
 flag=False

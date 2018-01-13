@@ -18,8 +18,6 @@ cursor=con.cursor()
 cursor.execute("SELECT ppm,time FROM sensors")
 
 xy=[]
-#for row in cursor:
-#    xy.append([float(row[0])])
 
 # noisy data handling
 flag=False
