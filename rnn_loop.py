@@ -122,6 +122,7 @@ list_length=len(testY)
 
 # delete last 5 data
 cursor.execute("DELETE FROM predict WHERE value1 is null")
+# delete more than 4 hours ago
 cursor.execute("DELETE FROM predict WHERE time < '" + str(datetime.datetime.now()-datetime.timedelta(hours=4)) + "'")
 con.commit()
 
