@@ -21,7 +21,6 @@ time=[]
 for row in cursor:
     xy.append([float(row[0])])
     time.append([str(row[1])])  # get timestamp
-last_day = int(re.split(r'[-: ]',time[-1][0])[2])
 
 xy1=xy  # pre Scalar data
 numerator = xy - np.min(xy, 0)  # MinMaxScalar
@@ -118,7 +117,7 @@ f='%Y-%m-%d %H:%M:%S'  # time format
 # save db
 list_length=len(testY)
 for i in range(list_length):
-    if(int(re.split(r'[-: ]', timeY[i][0])[2]) == last_day):  # include only last day
+    if(datetime.datetime.strptime( str(timeY[i, 0]), f) > datetime.datetime.now() - datetime.timedelta(hours=4)):
         cursor.execute("INSERT INTO predict (value1,value2,time) VALUES (%f,%f,'%s')"
                        % (testY[i], test_predict[i], datetime.datetime.strptime(str(timeY[i, 0]), f)))
 
