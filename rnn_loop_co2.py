@@ -136,6 +136,7 @@ list_length=len(testY)
 
 # delete last 5 data
 cursor.execute("DELETE FROM predict_co2 WHERE value1 is null")
+cursor.execute("DELETE FROM predict WHERE time < '" + str(datetime.datetime.now()-datetime.timedelta(hours=4)) + "'")
 con.commit()
 
 # save db
