@@ -102,7 +102,7 @@ test_predict = sess.run(Y_pred, feed_dict={X: testX})
 # 5 times added prediction
 temp_list=testX[-1]
 temp_list=np.delete(temp_list, 0, axis=0)
-temp_list= np.append(temp_list, test_predict[-1, 0].reshape(1, 1), axis=0)
+temp_list= np.append(temp_list, xy[-1, 0].reshape(1, 1), axis=0)
 test_predict1 = sess.run(Y_pred, feed_dict={X: temp_list.reshape(1, 7, 1)})
 temp_list=np.delete(temp_list, 0,axis=0)
 temp_list= np.append(temp_list, test_predict[-1, 0].reshape(1, 1), axis=0)
